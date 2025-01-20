@@ -4,7 +4,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
+  const url = process.env.REACT_APP_BASE_URL;
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -15,7 +15,8 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/login', {
+      console.log(`${url}/auth/login`);
+      const response = await fetch(`${url}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

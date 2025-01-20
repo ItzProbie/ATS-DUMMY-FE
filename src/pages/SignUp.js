@@ -21,7 +21,7 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/sendOtp', { // Replace with your API endpoint
+      const response = await fetch('https://stunning-sniffle-r4p6pj46vp4h57p4-4000.app.github.dev/api/v1/auth/sendOtp', { // Replace with your API endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/v1/auth/signup', { // Replace with your API endpoint
+      const response = await fetch('https://stunning-sniffle-r4p6pj46vp4h57p4-4000.app.github.dev/api/v1/auth/signup', { // Replace with your API endpoint
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

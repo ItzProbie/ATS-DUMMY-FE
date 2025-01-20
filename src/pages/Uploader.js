@@ -43,18 +43,22 @@ const Upload = () => {
     setError(''); // Clear any previous errors
 
     try {
+      
       // Step 1: Hit the GET API to get the upload URL
       const fileSize = file.size; // in bytes
-      const response = await fetch('http://localhost:4000/api/v1/media/upload', {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/media/upload?mediaType=pdf&mediaSize=${fileSize}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-        params: {
-          mediaType: 'pdf',
-          mediaSize: fileSize,
-        },
+        // params: {
+        //   mediaType: 'pdf',
+        //   mediaSize: fileSize,
+        // },
       });
+
+      console.log(response);
+      
 
       const data = await response.json();
 
@@ -62,13 +66,37 @@ const Upload = () => {
         throw new Error(data.message || 'Failed to get upload URL');
       }
 
-      const { url } = data; // URL to upload the file
+      const { presignedUploadUrl } = data; // URL to upload the file
 
       // Step 2: Hit the PUT API with the file
-      const uploadResponse = await fetch(url, {
+      const uploadResponse = await fetch(presignedUploadUrl, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/pdf', // Specify the file type
+        },
         body: file,
       });
+      console.log(uploadResponse);
+      
+      const extractFileName = (url) => {
+        const path = new URL(url).pathname;  // Get the path part of the URL
+        const parts = path.split('/');  // Split the path into segments
+        return parts[parts.length - 1];  // Return the last segment, which is the file name
+      };
+      
+      const fileName = extractFileName(presignedUploadUrl);
+      console.log(presignedUploadUrl);
+      console.log("FileName: " , fileName);
+      
+      
+      const findATS = await fetch(`${process.env.REACT_APP_BASE_URL}/ats/generate-ats?fileName=${fileName}` , {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        }
+      });
+
+      console.log(findATS);
 
       if (!uploadResponse.ok) {
         throw new Error('File upload failed');
