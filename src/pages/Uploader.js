@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import Redis from 'ioredis';
 
 const Upload = () => {
   const [file, setFile] = useState(null);
@@ -9,7 +10,8 @@ const Upload = () => {
   // Check for authToken in localStorage
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
-    if (!authToken) {
+    const userId = localStorage.getItem('userId');
+    if (!authToken || !userId) {
       navigate('/login'); // Redirect to login if no authToken is found
     }
   }, [navigate]);
@@ -69,6 +71,19 @@ const Upload = () => {
       const { presignedUploadUrl } = data; // URL to upload the file
 
       // Step 2: Hit the PUT API with the file
+
+      const letS3Upload = await fetch(`${process.env.REACT_APP_BASE_URL}/redis-wrapper/s3-upload-limit` , {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        }
+      });
+
+      if(!letS3Upload || !letS3Upload?.data?.success){
+          console.log("Rate Limited");
+          return;
+      }
+
       const uploadResponse = await fetch(presignedUploadUrl, {
         method: 'PUT',
         headers: {

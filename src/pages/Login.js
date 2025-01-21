@@ -30,10 +30,11 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         // Assuming the token is returned as data.token
-        const { token } = data;
+        const { token , user } = data;
         if (token) {
           // Save the token in localStorage
           localStorage.setItem('authToken', token);
+          localStorage.setItem('userId', user._id);
           alert('Login successful!');
         } else {
           setErrorMessage('Failed to get token');
