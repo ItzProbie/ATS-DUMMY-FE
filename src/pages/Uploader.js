@@ -48,74 +48,50 @@ const Upload = () => {
       
       // Step 1: Hit the GET API to get the upload URL
       const fileSize = file.size; // in bytes
-      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/media/upload?mediaType=pdf&mediaSize=${fileSize}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        // params: {
-        //   mediaType: 'pdf',
-        //   mediaSize: fileSize,
-        // },
-      });
+      // const response = await fetch(`${process.env.REACT_APP_BASE_URL}/media/upload?mediaType=pdf&mediaSize=${fileSize}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     Authorization: `Bearer ${authToken}`,
+      //   },
+      //   // params: {
+      //   //   mediaType: 'pdf',
+      //   //   mediaSize: fileSize,
+      //   // },
+      // });
 
-      console.log(response);
+      // console.log(response);
       
 
-      const data = await response.json();
+      // const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to get upload URL');
-      }
+      // if (!response.ok) {
+      //   throw new Error(data.message || 'Failed to get upload URL');
+      // }
 
-      const { presignedUploadUrl } = data; // URL to upload the file
+      // const { presignedUploadUrl } = data; // URL to upload the file
 
       // Step 2: Hit the PUT API with the file
 
-      const letS3Upload = await fetch(`${process.env.REACT_APP_BASE_URL}/redis-wrapper/s3-upload-limit` , {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${authToken}`
-        }
-      });
+      // const letS3Upload = await fetch(`${process.env.REACT_APP_BASE_URL}/ats/generate-ats` , {
+      //   method: 'POST',
+      //   headers: {
+      //     Authorization: `Bearer ${authToken}`
+      //   },
+      //   body: file
+      // });
 
-      if(!letS3Upload || !letS3Upload?.data?.success){
-          console.log("Rate Limited");
-          return;
-      }
+      const formData = new FormData();
+      formData.append('file', file);
 
-      const uploadResponse = await fetch(presignedUploadUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/pdf', // Specify the file type
-        },
-        body: file,
-      });
-      console.log(uploadResponse);
-      
-      const extractFileName = (url) => {
-        const path = new URL(url).pathname;  // Get the path part of the URL
-        const parts = path.split('/');  // Split the path into segments
-        return parts[parts.length - 1];  // Return the last segment, which is the file name
-      };
-      
-      const fileName = extractFileName(presignedUploadUrl);
-      console.log(presignedUploadUrl);
-      console.log("FileName: " , fileName);
-      
-      
-      const findATS = await fetch(`${process.env.REACT_APP_BASE_URL}/ats/generate-ats?fileName=${fileName}` , {
-        method: 'GET',
+      const letS3Upload = await fetch(`${process.env.REACT_APP_BASE_URL}/ats/generate-ats`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${authToken}`,
-        }
+        },
+        body: formData,
       });
-
-      console.log(findATS);
-
-      if (!uploadResponse.ok) {
-        throw new Error('File upload failed');
-      }
+      console.log(letS3Upload);
+      
 
       console.log('Success: File uploaded successfully');
     } catch (err) {
